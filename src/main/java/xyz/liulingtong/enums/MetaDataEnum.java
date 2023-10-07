@@ -1,5 +1,5 @@
 package xyz.liulingtong.enums;
 
-public enum MetaData {
+public enum MetaDataEnum {
     META,DATA
 }

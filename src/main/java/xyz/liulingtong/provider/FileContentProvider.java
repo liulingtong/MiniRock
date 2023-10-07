@@ -1,6 +1,6 @@
 package xyz.liulingtong.provider;
 
-import xyz.liulingtong.enums.MetaData;
+import xyz.liulingtong.enums.MetaDataEnum;
 import xyz.liulingtong.enums.ProviderType;
 
 import java.io.File;
@@ -65,17 +65,17 @@ public class FileContentProvider implements ContentProvider {
 
 
     @Override
-    public byte[] read(MetaData metaData) {
-        return read(metaData, 0, metaData == MetaData.META ? metaFile.length() : dataFile.length());
+    public byte[] read(MetaDataEnum metaDataEnum) {
+        return read(metaDataEnum, 0, metaDataEnum == MetaDataEnum.META ? metaFile.length() : dataFile.length());
     }
 
     @Override
-    public byte[] read(MetaData metaOrData, long start, long length) {
+    public byte[] read(MetaDataEnum metaOrData, long start, long length) {
         File operateFile;
         long fileLastModify;
         RandomAccessFile operateAccessFile;
         MappedByteBuffer operateBuffer;
-        if (metaOrData == MetaData.META) {
+        if (metaOrData == MetaDataEnum.META) {
             operateFile = metaFile;
             operateAccessFile = metaAccessFile;
             fileLastModify = metaLastModify;
@@ -87,7 +87,7 @@ public class FileContentProvider implements ContentProvider {
         if (operateFile.lastModified() != fileLastModify) {
             try {
                 operateBuffer = operateAccessFile.getChannel().map(FileChannel.MapMode.READ_WRITE, start, length);
-                if (metaOrData == MetaData.META) {
+                if (metaOrData == MetaDataEnum.META) {
                     metaBuffer = operateBuffer;
                 } else {
                     dataBuffer = operateBuffer;
@@ -96,11 +96,8 @@ public class FileContentProvider implements ContentProvider {
                 throw new IllegalArgumentException(e.getMessage());
             }
         }
-        operateBuffer = metaOrData == MetaData.META ? metaBuffer : dataBuffer;
-        operateBuffer.position(0);
-        byte[] content = new byte[operateBuffer.remaining()];
-        operateBuffer.get(content);
-        return content;
+        operateBuffer = metaOrData == MetaDataEnum.META ? metaBuffer : dataBuffer;
+        return operateBuffer.array();
     }
 
 
@@ -121,11 +118,13 @@ public class FileContentProvider implements ContentProvider {
         dataAccessFile = new RandomAccessFile(dataFile, "rw");
         metaBuffer = metaAccessFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, metaAccessFile.length());
         dataBuffer = dataAccessFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, dataAccessFile.length());
-        return metaFile.createNewFile() && dataFile.createNewFile();
+        metaFile.createNewFile();
+        dataFile.createNewFile();
+        return true;
     }
 
     @Override
-    public long version() {
+    public long getVersion() {
         return metaFile.lastModified() + dataFile.lastModified();
     }
 

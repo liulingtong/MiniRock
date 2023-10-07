@@ -1,6 +1,6 @@
 package xyz.liulingtong.provider;
 
-import xyz.liulingtong.enums.MetaData;
+import xyz.liulingtong.enums.MetaDataEnum;
 import xyz.liulingtong.enums.ProviderType;
 
 public interface ContentProvider {
@@ -13,8 +13,8 @@ public interface ContentProvider {
      */
     boolean write(byte[] meta, byte[] data);
 
-    byte[] read(MetaData metaData);
-    byte[] read(MetaData metaData, long start, long length);
+    byte[] read(MetaDataEnum metaDataEnum);
+    byte[] read(MetaDataEnum metaDataEnum, long start, long length);
 
     /**
      * @param key 根据 key 进行初始化。其他文件根据 key 获取数据
@@ -28,7 +28,7 @@ public interface ContentProvider {
      *
      * @return 数据版本
      */
-    long version();
+    long getVersion();
 
     /**
      * 更新版本
